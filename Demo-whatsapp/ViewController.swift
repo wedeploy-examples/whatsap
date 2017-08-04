@@ -20,7 +20,7 @@ import SocketIO
 
 class ViewController: SLKTextViewController {
 
-	let whatsappDataUrl = "https://data-whatsapp.wedeploy.sh"
+	let whatsappDataUrl = "https://data-whatsapp.wedeploy.io"
 
 	var messages = [Message]()
 	var currentUser: Author!
