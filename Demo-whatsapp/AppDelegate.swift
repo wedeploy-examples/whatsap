@@ -18,98 +18,98 @@ import UIKit
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-	var window: UIWindow?
+  var window: UIWindow?
 
-	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+  func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 
-		let viewController = UIStoryboard(name: "Main", bundle: nil).instantiateInitialViewController() as? UINavigationController
-		(viewController?.topViewController as? ViewController)?.currentUser = loadOrCreateCurrentUser()
+    let viewController = UIStoryboard(name: "Main", bundle: nil).instantiateInitialViewController() as? UINavigationController
+    (viewController?.topViewController as? ViewController)?.currentUser = loadOrCreateCurrentUser()
 
-		window = UIWindow(frame: UIScreen.main.bounds)
-		window?.rootViewController = viewController
-		window?.makeKeyAndVisible()
+    window = UIWindow(frame: UIScreen.main.bounds)
+    window?.rootViewController = viewController
+    window?.makeKeyAndVisible()
 
-		return true
-	}
+    return true
+  }
 
-	func loadOrCreateCurrentUser() -> Author {
+  func loadOrCreateCurrentUser() -> Author {
 
-		let userDefaults = UserDefaults.standard
+    let userDefaults = UserDefaults.standard
 
-		if let id = userDefaults.string(forKey: "id") {
-			let color = userDefaults.integer(forKey: "color")
-			let name = userDefaults.string(forKey: "name")
-			return Author(id: id, name: name!, color: color)
-		}
-		else {
-			let user = getRandomUser()
-			userDefaults.set(user.id, forKey: "id")
-			userDefaults.set(user.name, forKey: "name")
-			userDefaults.set(user.color, forKey: "color")
-			userDefaults.synchronize()
-			return user
-		}
-	}
+    if let id = userDefaults.string(forKey: "id") {
+      let color = userDefaults.integer(forKey: "color")
+      let name = userDefaults.string(forKey: "name")
+      return Author(id: id, name: name!, color: color)
+    }
+    else {
+      let user = getRandomUser()
+      userDefaults.set(user.id, forKey: "id")
+      userDefaults.set(user.name, forKey: "name")
+      userDefaults.set(user.color, forKey: "color")
+      userDefaults.synchronize()
+      return user
+    }
+  }
 
-	func getRandomUser() -> Author {
-		let userIndex = Int(arc4random_uniform(UInt32(randomUsers.count)));
-		let colorIndex = Int(arc4random_uniform(UInt32(UIColor.chatColors.count)));
-		let name = randomUsers[userIndex]
+  func getRandomUser() -> Author {
+    let userIndex = Int(arc4random_uniform(UInt32(randomUsers.count)));
+    let colorIndex = Int(arc4random_uniform(UInt32(UIColor.chatColors.count)));
+    let name = randomUsers[userIndex]
 
-		return Author(name: name, color: colorIndex)
-	}
+    return Author(name: name, color: colorIndex)
+  }
 
-	let randomUsers = [
-		"Jospeh",
-		"Rosemary",
-		"Gregg",
-		"Nohemi",
-		"Helene",
-		"Irish",
-		"Reginia",
-		"Antonietta",
-		"Major",
-		"Dovie",
-		"Alona",
-		"Margarette",
-		"Bob",
-		"Meghan",
-		"Maia",
-		"Arnold",
-		"Jamar",
-		"Tyra",
-		"Kamilah",
-		"Tam",
-		"Noble",
-		"Cordia",
-		"Tana",
-		"Antone",
-		"Santiago",
-		"Grant",
-		"Olene",
-		"Rosa",
-		"Arturo",
-		"Lowell",
-		"Dorotha",
-		"Carolyne",
-		"Lelah",
-		"Troy",
-		"Nia",
-		"Waltraud",
-		"Luther",
-		"Shira",
-		"Pilar",
-		"Bulah",
-		"Danna",
-		"Elwanda",
-		"Leroy",
-		"Jimmie",
-		"Dwight",
-		"Criselda",
-		"Geneva",
-		"Carlton",
-		"Alfred",
-		"Barton"
-	]
+  let randomUsers = [
+    "Jospeh",
+    "Rosemary",
+    "Gregg",
+    "Nohemi",
+    "Helene",
+    "Irish",
+    "Reginia",
+    "Antonietta",
+    "Major",
+    "Dovie",
+    "Alona",
+    "Margarette",
+    "Bob",
+    "Meghan",
+    "Maia",
+    "Arnold",
+    "Jamar",
+    "Tyra",
+    "Kamilah",
+    "Tam",
+    "Noble",
+    "Cordia",
+    "Tana",
+    "Antone",
+    "Santiago",
+    "Grant",
+    "Olene",
+    "Rosa",
+    "Arturo",
+    "Lowell",
+    "Dorotha",
+    "Carolyne",
+    "Lelah",
+    "Troy",
+    "Nia",
+    "Waltraud",
+    "Luther",
+    "Shira",
+    "Pilar",
+    "Bulah",
+    "Danna",
+    "Elwanda",
+    "Leroy",
+    "Jimmie",
+    "Dwight",
+    "Criselda",
+    "Geneva",
+    "Carlton",
+    "Alfred",
+    "Barton"
+  ]
 }
 

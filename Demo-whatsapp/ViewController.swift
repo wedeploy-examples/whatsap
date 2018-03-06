@@ -20,149 +20,149 @@ import SocketIO
 
 class ViewController: SLKTextViewController {
 
-	let whatsappDataUrl = "https://data-whatsapp.wedeploy.io"
+  let whatsappDataUrl = "https://data-whatsapp.wedeploy.io"
 
-	var messages = [Message]()
-	var currentUser: Author!
-	var socket: SocketIOClient?
+  var messages = [Message]()
+  var currentUser: Author!
+  var socket: SocketIOClient?
 
-	override var tableView: UITableView {
-		return super.tableView!
-	}
+  override var tableView: UITableView {
+    return super.tableView!
+  }
 
-	override func viewDidLoad() {
-		super.viewDidLoad()
+  override func viewDidLoad() {
+    super.viewDidLoad()
 
-		configureTableView()
+    configureTableView()
 
-		WeDeploy.data(whatsappDataUrl)
-			.orderBy(field: "id", order: .ASC)
-			.limit(100)
-			.get(resourcePath: "messages")
-			.then { [weak self] messages -> Void in
-				self?.messages = messages.map({ Message(json: $0) }).reversed()
-				self?.tableView.reloadData()
-			}
-			.catch { error in
-				print(error)
-		}
+    WeDeploy.data(whatsappDataUrl)
+      .orderBy(field: "id", order: .ASC)
+      .limit(100)
+      .get(resourcePath: "messages")
+      .then { [weak self] messages -> Void in
+        self?.messages = messages.map({ Message(json: $0) }).reversed()
+        self?.tableView.reloadData()
+      }
+      .catch { error in
+        print(error)
+    }
 
-		socket = WeDeploy.data(whatsappDataUrl)
-			.orderBy(field: "id", order: .DESC)
-			.limit(1)
-			.watch(resourcePath: "messages")
+    socket = WeDeploy.data(whatsappDataUrl)
+      .orderBy(field: "id", order: .DESC)
+      .limit(1)
+      .watch(resourcePath: "messages")
 
-		socket?.on(.changes) { [unowned self ] event in
-			let messageRaw = event.document["changes"] as! [[String: Any]]
+    socket?.on(.changes) { [unowned self ] event in
+      let messageRaw = event.document["changes"] as! [[String: Any]]
 
-			let message = Message(json: messageRaw[0])
+      let message = Message(json: messageRaw[0])
 
-			if !self.messages.contains(where: {$0.id == message.id}) {
-				self.insertMessage(message: message)
-			}
-		}
-	}
+      if !self.messages.contains(where: {$0.id == message.id}) {
+        self.insertMessage(message: message)
+      }
+    }
+  }
 
-	override func didPressRightButton(_ sender: Any?) {
-		let content = self.textView.text!
-		self.textView.text = ""
+  override func didPressRightButton(_ sender: Any?) {
+    let content = self.textView.text!
+    self.textView.text = ""
 
-		let message = Message(author: currentUser, content: content)
+    let message = Message(author: currentUser, content: content)
 
-		WeDeploy.data(whatsappDataUrl)
-			.create(resource: "messages", object: message.toJson())
-			.then { _ in
-				print("created")
-			}
-			.catch { error in
-				print("Error creating the message \(error)")
-			}
+    WeDeploy.data(whatsappDataUrl)
+      .create(resource: "messages", object: message.toJson())
+      .then { _ in
+        print("created")
+      }
+      .catch { error in
+        print("Error creating the message \(error)")
+      }
 
-		insertMessage(message: message)
-	}
+    insertMessage(message: message)
+  }
 
-	func insertMessage(message: Message) {
-		let indexPath = IndexPath(row: 0, section: 0)
-		self.messages.insert(message, at: 0)
-		self.tableView.insertRows(at: [indexPath], with: .bottom)
-	}
+  func insertMessage(message: Message) {
+    let indexPath = IndexPath(row: 0, section: 0)
+    self.messages.insert(message, at: 0)
+    self.tableView.insertRows(at: [indexPath], with: .bottom)
+  }
 
-	func configureTableView() {
-		self.tableView.tableFooterView = UIView()
+  func configureTableView() {
+    self.tableView.tableFooterView = UIView()
 
-		self.tableView.register(UINib(nibName: "MessageCell", bundle: nil),
-		                        forCellReuseIdentifier: "personalMessage")
-		self.tableView.register(UINib(nibName: "OtherMessageCell", bundle: nil),
-		                        forCellReuseIdentifier: "otherMessage")
-		self.tableView.backgroundColor = .clear
-		self.tableView.backgroundView = nil
-		self.tableView.separatorStyle = .none
+    self.tableView.register(UINib(nibName: "MessageCell", bundle: nil),
+                            forCellReuseIdentifier: "personalMessage")
+    self.tableView.register(UINib(nibName: "OtherMessageCell", bundle: nil),
+                            forCellReuseIdentifier: "otherMessage")
+    self.tableView.backgroundColor = .clear
+    self.tableView.backgroundView = nil
+    self.tableView.separatorStyle = .none
 
-		let background = UIImageView(image: UIImage(named: "bg.jpg"))
-		background.contentMode = .scaleToFill
+    let background = UIImageView(image: UIImage(named: "bg.jpg"))
+    background.contentMode = .scaleToFill
 
-		background.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-		self.view.addSubview(background)
-		self.view.sendSubview(toBack: background)
-	}
+    background.autoresizingMask = [.flexibleHeight, .flexibleWidth]
+    self.view.addSubview(background)
+    self.view.sendSubview(toBack: background)
+  }
 
 
-	override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath)
-		-> CGFloat {
+  override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath)
+    -> CGFloat {
 
-		let message = self.messages[(indexPath as NSIndexPath).row].content
+    let message = self.messages[(indexPath as NSIndexPath).row].content
 
-		let paragraphStyle = NSMutableParagraphStyle()
-		paragraphStyle.lineBreakMode = .byWordWrapping
-		paragraphStyle.alignment = .left
+    let paragraphStyle = NSMutableParagraphStyle()
+    paragraphStyle.lineBreakMode = .byWordWrapping
+    paragraphStyle.alignment = .left
 
-		let pointSize: CGFloat = MessageCell.defaultFontSize()
+    let pointSize: CGFloat = MessageCell.defaultFontSize()
 
-		let attributes = [
-			NSAttributedStringKey.font : UIFont.systemFont(ofSize: pointSize),
-			NSAttributedStringKey.paragraphStyle : paragraphStyle
-		]
+    let attributes = [
+      NSAttributedStringKey.font : UIFont.systemFont(ofSize: pointSize),
+      NSAttributedStringKey.paragraphStyle : paragraphStyle
+    ]
 
-		let width: CGFloat = MessageCell.MaxMessageWidth - 8
+    let width: CGFloat = MessageCell.MaxMessageWidth - 8
 
-		let titleBounds = (message as NSString).boundingRect(with:
-				CGSize(width: width, height: CGFloat.greatestFiniteMagnitude),
-				options: .usesLineFragmentOrigin, attributes: attributes, context: nil)
+    let titleBounds = (message as NSString).boundingRect(with:
+        CGSize(width: width, height: CGFloat.greatestFiniteMagnitude),
+        options: .usesLineFragmentOrigin, attributes: attributes, context: nil)
 
-		var height = titleBounds.height
-		height += 22 + 21 + 5 + 5
+    var height = titleBounds.height
+    height += 22 + 21 + 5 + 5
 
-		return height
-	}
+    return height
+  }
 
-	override class func tableViewStyle(for decoder: NSCoder) -> UITableViewStyle {
-		return .plain
-	}
+  override class func tableViewStyle(for decoder: NSCoder) -> UITableViewStyle {
+    return .plain
+  }
 
-	override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		return messages.count
-	}
+  override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    return messages.count
+  }
 
-	override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-		let message = messages[indexPath.row]
-		let identifier = message.author.id == currentUser.id ? "personalMessage" : "otherMessage"
-		let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as! MessageCell
+  override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    let message = messages[indexPath.row]
+    let identifier = message.author.id == currentUser.id ? "personalMessage" : "otherMessage"
+    let cell = tableView.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as! MessageCell
 
-		cell.message = message.content
-		cell.author = message.author.name
-		cell.authorColor = message.author.color
-		cell.date = message.time
+    cell.message = message.content
+    cell.author = message.author.name
+    cell.authorColor = message.author.color
+    cell.date = message.time
 
-		cell.transform = tableView.transform
+    cell.transform = tableView.transform
 
-		return cell
-	}
+    return cell
+  }
 
-	@IBOutlet weak var logoImage: UIImageView! {
-		didSet {
-			logoImage.layer.cornerRadius = logoImage.frame.width/2
-			logoImage.layer.masksToBounds = true
-		}
-	}
+  @IBOutlet weak var logoImage: UIImageView! {
+    didSet {
+      logoImage.layer.cornerRadius = logoImage.frame.width/2
+      logoImage.layer.masksToBounds = true
+    }
+  }
 }
 
